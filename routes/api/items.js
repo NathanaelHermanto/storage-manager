@@ -2,11 +2,40 @@ const express = require('express');
 const uuid = require('uuid');
 const router = express.Router();
 const items = require('../../Items');
+const mongoose = require('mongoose');
+const itemSchema = require('../../models/itemSchema');
+
+mongoose.connect(process.env.DB_CONNECTION, 
+  { useNewUrlParser: true },
+  () => {
+  console.log('connected to mongodb');
+});
+
+const modelSchema = mongoose.Schema({
+  name: {
+      type: String,
+      required: true
+  },
+  location: {
+      type: String,
+      required: true
+  },
+  qty: {
+      type: Number,
+      required: true
+  }
+});
+
+const dbConnection = mongoose.connection;
+
+const ItemStorage = dbConnection.model('ItemStorage', modelSchema);
+
+ItemStorage.insertMany(items, (error) => console.log(error))
 
 const idFilter = req => item => item.id === parseInt(req.params.id);
 
 //Get All Items
-router.get('/', (req, res) => res.json(items));
+router.get('/', (req, res) => ItemStorage.find());
 
 // Get Single Item with ID
 router.get('/:id', (req, res) => {

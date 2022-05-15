@@ -1,7 +1,6 @@
 const express = require('express');
-const path = require('path');
 const logger = require('./middleware/logger');
-const items = require('./Items');
+require('dotenv').config();
 
 const app = express();
 app.use(logger);
