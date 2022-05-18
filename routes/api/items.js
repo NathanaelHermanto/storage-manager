@@ -36,8 +36,8 @@ router.get('/', (req, res) => {
 router.get('/:name', (req, res, next) => {
     DBItem.find({
       'name': req.params.name
-    }, function(error, data){
-      if(error) return next(error);
+    }, function(err, data){
+      if(err) return next(err);
       // check data is not null
       if (!(Object.keys(data).length === 0)) res.json(data)
       else return res.status(400).json({msg: 'item not found'})
@@ -54,8 +54,8 @@ router.post('/', (req, res, next) => {
       return res.status(400).json({ msg: 'Please include name and location and qty' });
     }
     
-    newItem.save((error, post) => {
-      if (error) return next(error);
+    newItem.save((err, post) => {
+      if (err) return next(err);
       res.status(201).json(post);
     })
   });
@@ -63,6 +63,10 @@ router.post('/', (req, res, next) => {
 
 // Update Item
 router.put('/:name', (req, res) => {
+  if (!(req.body.location || req.body.qty)) {
+    return res.status(400).json({ msg: 'Please include location or qty' });
+  }
+
   DBItem.findOneAndUpdate({'name': req.params.name}, req.body, {new: true}, function(err, doc) {
     if (err) return res.send(500, {error: err});
     return res.status(200).json(doc);
