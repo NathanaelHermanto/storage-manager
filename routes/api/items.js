@@ -27,7 +27,7 @@ const idFilter = req => item => item.id === parseInt(req.params.id);
 
 //Get All Items
 router.get('/', (req, res) => {
-  DBItem.find({}, function(err, data){ 
+  DBItem.find({}, (err, data) => { 
     res.json(data); 
   });
 });
@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
 router.get('/:name', (req, res, next) => {
     DBItem.find({
       'name': req.params.name
-    }, function(err, data){
+    }, (err, data) => {
       if(err) return next(err);
       // check data is not null
       if (!(Object.keys(data).length === 0)) res.json(data)
@@ -67,25 +67,22 @@ router.put('/:name', (req, res) => {
     return res.status(400).json({ msg: 'Please include location or qty' });
   }
 
-  DBItem.findOneAndUpdate({'name': req.params.name}, req.body, {new: true}, function(err, doc) {
-    if (err) return res.send(500, {error: err});
-    return res.status(200).json(doc);
+  DBItem.findOneAndUpdate({'name': req.params.name}, req.body, {
+      new: true, 
+      upsert: true
+    }, (err, doc) => {
+      if (err) return res.send(500, {error: err});
+      return res.status(200).json(doc);
   });
 
 });
 
-// // Delete Item
-// router.delete('/:id', (req, res) => {
-//     const found = items.some(idFilter(req));
-  
-//     if (found) {
-//       res.json({
-//         msg: 'Item deleted',
-//         items: items.filter(item => !idFilter(req)(item))
-//       });
-//     } else {
-//       res.status(400).json({ msg: `No item with the id of ${req.params.id}` });
-//     }
-//   });
+// Delete Item
+router.delete('/:name', (req, res) => {
+    DBItem.deleteOne({ 'name': req.params.name }, (err, doc) => {
+      if(err) return res.status(400)
+      res.status(200).json(doc);
+    });
+  });
 
 module.exports = router;
