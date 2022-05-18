@@ -21,10 +21,6 @@ dbConnection.on('error', console.error.bind(console, 'MongoDB connection error:'
 
 const DBItem = dbConnection.model('items', itemSchema, 'items');
 
-//DBItem.insertMany(items, (error) => console.log(error))
-
-const idFilter = req => item => item.id === parseInt(req.params.id);
-
 //Get All Items
 router.get('/', (req, res) => {
   DBItem.find({}, (err, data) => { 
