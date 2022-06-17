@@ -5,6 +5,11 @@ const itemSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        required: true
+    },
+    
     location: {
         type: String,
         required: true
@@ -12,7 +17,11 @@ const itemSchema = mongoose.Schema({
     qty: {
         type: Number,
         required: true
-    }
+    },
+    price: {
+        type: Number,
+        required: true
+    },
 });
 
 module.exports = itemSchema;
