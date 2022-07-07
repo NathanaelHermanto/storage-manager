@@ -1,30 +1,54 @@
 const express = require('express');
-const router = express.Router();
 const mongoose = require('mongoose');
 const itemSchema = require('../../models/ItemSchema');
 
-if(!process.env.DB_CONNECTION) console.log('error DB_CONNECTION is not set');
-mongoose.set("debug", true);
+const router = express.Router();
+var DBItem;
 
-async function connect() {
-  await mongoose.connect(process.env.DB_CONNECTION,
+async function connect(username, password) {
+  return mongoose.connect(`mongodb+srv://${username}:${password}@storage-manager-db.ednke.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
     { useNewUrlParser: true },
     () => {
-      console.log('connected to mongodb');
+      //console.log('connected to mongodb');
     });
 }
 
-connect().catch(err => console.log(err));
+router.post('/login', (req, res) => {
+  //var connected = false
+  connect(req.body.username, req.body.password)
+    .catch(err => {console.log(err)})
+    
+  const dbConnection = mongoose.connection;
 
-const dbConnection = mongoose.connection;
-dbConnection.on('error', console.error.bind(console, 'MongoDB connection error:'));
+  const checkNotConnected = async () => {
+    dbConnection.on('error', (err) => {
+      console.error(err)
+      //connected = false
+      return res.status(400).json({"message": "login failed"})
+    });
+  }
 
-const DBItem = dbConnection.model('items', itemSchema, 'items');
+  const checkConnected = async () => {
+    await checkNotConnected();
+    dbConnection.on('connected', () => {
+      //connected = true
+      console.log('connected')
+      return res.status(200).json({"message": "login success"})
+    });
+  }
+
+  checkConnected();
+
+  DBItem = dbConnection.model('items', itemSchema, 'items');
+  // if (connected) return res.status(200).json({"message": "login success"})
+  // else res.status(400).json({"message": "login failed"})
+
+});
 
 //Get All Items
 router.get('/', (req, res) => {
   DBItem.find({}, (err, data) => { 
-    res.json(data); 
+    res.status(200).json(data); 
   });
 });
 
