@@ -1,30 +1,33 @@
 const express = require('express');
-const router = express.Router();
 const mongoose = require('mongoose');
 const itemSchema = require('../../models/ItemSchema');
 
-if(!process.env.DB_CONNECTION) console.log('error DB_CONNECTION is not set');
-mongoose.set("debug", true);
+const router = express.Router();
+var DBItem;
 
-async function connect() {
-  await mongoose.connect(process.env.DB_CONNECTION,
-    { useNewUrlParser: true },
-    () => {
-      console.log('connected to mongodb');
-    });
+async function connect(username, password) {
+  return mongoose.connect(`mongodb+srv://${username}:${password}@storage-manager-db.ednke.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+    { useNewUrlParser: true });
 }
 
-connect().catch(err => console.log(err));
-
-const dbConnection = mongoose.connection;
-dbConnection.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-const DBItem = dbConnection.model('items', itemSchema, 'items');
+router.post('/login', (req, res) => {
+  connect(req.body.username, req.body.password)
+    .then(mg => {
+      const dbConnection = mg.connection;
+      console.log('connected')
+      DBItem = dbConnection.model('items', itemSchema, 'items');
+      res.status(200).json({"token": "0"})
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(400).json({"token": "1"})
+    })
+});
 
 //Get All Items
 router.get('/', (req, res) => {
   DBItem.find({}, (err, data) => { 
-    res.json(data); 
+    res.status(200).json(data); 
   });
 });
 
