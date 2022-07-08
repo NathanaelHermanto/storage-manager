@@ -7,42 +7,21 @@ var DBItem;
 
 async function connect(username, password) {
   return mongoose.connect(`mongodb+srv://${username}:${password}@storage-manager-db.ednke.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
-    { useNewUrlParser: true },
-    () => {
-      //console.log('connected to mongodb');
-    });
+    { useNewUrlParser: true });
 }
 
 router.post('/login', (req, res) => {
-  //var connected = false
   connect(req.body.username, req.body.password)
-    .catch(err => {console.log(err)})
-    
-  const dbConnection = mongoose.connection;
-
-  const checkNotConnected = async () => {
-    dbConnection.on('error', (err) => {
-      console.error(err)
-      //connected = false
-      return res.status(400).json({"message": "login failed"})
-    });
-  }
-
-  const checkConnected = async () => {
-    await checkNotConnected();
-    dbConnection.on('connected', () => {
-      //connected = true
+    .then(mg => {
+      const dbConnection = mg.connection;
       console.log('connected')
-      return res.status(200).json({"message": "login success"})
-    });
-  }
-
-  checkConnected();
-
-  DBItem = dbConnection.model('items', itemSchema, 'items');
-  // if (connected) return res.status(200).json({"message": "login success"})
-  // else res.status(400).json({"message": "login failed"})
-
+      DBItem = dbConnection.model('items', itemSchema, 'items');
+      res.status(200).json({"token": "0"})
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(400).json({"token": "1"})
+    })
 });
 
 //Get All Items
