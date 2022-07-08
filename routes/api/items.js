@@ -10,8 +10,8 @@ async function connect(username, password) {
     { useNewUrlParser: true });
 }
 
-router.post('/login', (req, res) => {
-  connect(req.body.username, req.body.password)
+router.post('/login', async (req, res) => {
+  await connect(req.body.username, req.body.password)
     .then(mg => {
       const dbConnection = mg.connection;
       console.log('connected')
