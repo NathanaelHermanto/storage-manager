@@ -27,6 +27,7 @@ router.post('/login', async (req, res) => {
 //Get All Items
 router.get('/', (req, res) => {
   DBItem.find({}, (err, data) => { 
+    console.log({err, data})
     res.status(200).json(data); 
   });
 });
@@ -42,6 +43,18 @@ router.get('/:name', (req, res, next) => {
       else return res.status(400).json({msg: 'item not found'})
     });
   });
+
+// Get Single Item with id
+router.get('/id/:id', (req, res, next) => {
+  DBItem.find({
+    '_id': req.params.id
+  }, (err, data) => {
+    if(err) return next(err);
+    // check data is not null
+    if (!(Object.keys(data).length === 0)) res.json(data)
+    else return res.status(400).json({msg: 'item not found'})
+  });
+});
 
 // Add Item
 router.post('/', (req, res, next) => {
@@ -76,12 +89,20 @@ router.put('/:name', (req, res) => {
 
 });
 
-// Delete Item
+// Delete Item by name
 router.delete('/:name', (req, res) => {
     DBItem.deleteOne({ 'name': req.params.name }, (err, doc) => {
       if(err) return res.status(400)
       res.status(200).json(doc);
     });
   });
+
+  // Delete Item by id
+router.delete('/id/:id', (req, res) => {
+  DBItem.deleteOne({ '_id': req.params.id }, (err, doc) => {
+    if(err) return res.status(400)
+    res.status(200).json(doc);
+  });
+});
 
 module.exports = router;
