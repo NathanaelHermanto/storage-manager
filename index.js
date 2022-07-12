@@ -18,4 +18,6 @@ app.use('/api/items', require('./routes/api/items.js'));
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => {
+    throw new Error("Fuck my life")
+});
