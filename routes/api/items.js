@@ -89,6 +89,22 @@ router.put('/:name', (req, res) => {
 
 });
 
+// Update Item by id
+router.put('/id/:id', (req, res) => {
+  if (!(req.body.location || req.body.qty || req.body.price || req.body.description)) {
+    return res.status(400).json({ msg: 'Please include location or qty' });
+  }
+
+  DBItem.findOneAndUpdate({'_id': req.params.id}, req.body, {
+      new: true, 
+      upsert: true
+    }, (err, doc) => {
+      if (err) return res.send(500, {error: err});
+      return res.status(200).json(doc);
+  });
+
+});
+
 // Delete Item by name
 router.delete('/:name', (req, res) => {
     DBItem.deleteOne({ 'name': req.params.name }, (err, doc) => {
